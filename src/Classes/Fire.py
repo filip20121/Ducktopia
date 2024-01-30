@@ -1,11 +1,11 @@
-from Object import Object
-from Player import load_sprite_sheets
 import os
 import random
 import math
 import pygame as pg
 from os import listdir
 from os.path import isfile, join
+from Object import Object
+from Player import load_sprite_sheets
 
 class Fire(Object):
     ANIMATION_DELAY = 3

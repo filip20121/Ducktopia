@@ -6,12 +6,14 @@ from os import listdir
 from os.path import isfile, join
 
 import sys
+
 #local classes
 sys.path.append('Classes/')
-from Fire import Fire
-from Block import Block
-from Player import Player
-WIDTH, HEIGHT = 1920, 800
+from Classes.Fire import Fire
+from Classes.Block import Block
+from Classes.Player import Player
+from Classes.Button import Button
+
 FPS = 60
 PLAYER_VEL = 5
 
@@ -19,6 +21,7 @@ pg.init()
 pg.display.set_caption("Ducktopia")
 
 window = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+WIDTH, HEIGHT = window.get_size()
 
 def get_background(name):
     """
@@ -135,8 +138,44 @@ def handle_move(player, objects):
         if obj and obj.name == "fire":
             player.make_hit()
 
+def main_menu(window):
+    pg.display.init()
+    clock = pg.time.Clock()
+    background, bg_image  = get_background("Gray.png")
+    
+    while True:
+        MENU_MOUSE_POS = pg.mouse.get_pos()
 
-def main(window):
+        for tile in background:
+            window.blit(bg_image, tile)
+
+        PLAY_BUTTON = Button(image= None, pos= (750,400),text_input="PLAY", 
+                             font=pg.font.Font('freesansbold.ttf', 75), 
+                             base_color="#FFFFFF", hovering_color="#00FF00")
+        
+        QUIT_BUTTON = Button(image= None, pos= (750,500),text_input="QUIT", 
+                             font=pg.font.Font('freesansbold.ttf', 75), 
+                             base_color="#FFFFFF", hovering_color="#00FF00")
+        
+        for button in [PLAY_BUTTON, QUIT_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(window)
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if(QUIT_BUTTON.checkForInput(MENU_MOUSE_POS)):
+                    pg.quit()
+                    sys.exit()
+                if(PLAY_BUTTON.checkForInput(MENU_MOUSE_POS)):
+                    play(window)
+                        
+        pg.display.update() 
+
+
+def play(window):
     """
     Main loop of the game
     """
@@ -148,15 +187,15 @@ def main(window):
     # Set up game elements
     block_size = 96
     player = Player(100, 100, 50, 50)
-    fire = Fire(100, HEIGHT - block_size - 64, 16, 32)
+    fire = Fire(100, HEIGHT - block_size - 32, 16, 32)
     fire.on()
-    floor = [Block(i * block_size, HEIGHT - block_size, block_size)
+    floor = [Block(i * block_size, HEIGHT - 64, block_size)
              for i in range(-WIDTH // block_size, (WIDTH * 2) // block_size)]
-    objects = [*floor, Block(0, HEIGHT - block_size * 2, block_size),
+    objects = [*floor, Block(0, HEIGHT - block_size - 64, block_size),
                Block(block_size * 3, HEIGHT - block_size * 4, block_size), fire]
 
-    offset_x = 200
-    scroll_area_width = 0
+    offset_x = 0
+    scroll_area_width = 100
 
     run = True
     while run:
@@ -195,4 +234,4 @@ def main(window):
 
 
 if __name__ == "__main__":
-    main(window)
+    main_menu(window)
